@@ -1,4 +1,12 @@
-# Virtual QA Lead: requirements → TestRail-ready test cases
+# Provide
+Provide requirements in any form or doc even give confluence page url.
+
+requirements → TestRail-ready test cases
+
+## Watch a real run
+
+https://github.com/user-attachments/assets/89ea268c-a674-4652-821e-bf104af19ef7
+
 
 Runs entirely inside **Claude Code on your Claude subscription**. No API key is needed.
 
@@ -32,6 +40,8 @@ The skill runs in your current conversation, so you can iterate with it ("add mo
 > /qa-test-generator samples/sample-requirements.md
 > Generate test cases from requirements.docx      ← loads automatically
 ```
+
+
 
 ## C: Web UI (QaseGenAI)
 Double-click **`start-ui.bat`** (or run `node web/server.js`), then open **http://localhost:4600**.
