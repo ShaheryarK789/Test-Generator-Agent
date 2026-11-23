@@ -1,0 +1,53 @@
+﻿Title,Section,Type,Priority,References,Preconditions,Steps,Expected Result,Test Data,Category,Source ID
+Login with valid email and password,Login > Positive,Functional,High,FR-1.1,Active user exists,"1. Open login page
+2. Enter valid email and password
+3. Click Login",User lands on dashboard; session created,user@corp.com / Valid@123,Positive,TC-001
+Apply Annual leave within balance,Apply Leave > Positive,Functional,High,"FR-2.1, FR-2.5",Employee with 20 days balance,"1. Open Apply Leave
+2. Select Annual and dates
+3. Submit",Request created as Pending; balance shows 20 (15 after approval),"Annual, tomorrow to +4 days (5 days)",Positive,TC-011
+Apply Sick and Unpaid leave,Apply Leave > Positive,Functional,High,FR-2.1,,"1. Submit Sick leave request
+2. Submit Unpaid leave request",Both created as Pending; Annual balance unchanged,,Positive,TC-012
+Manager approves direct report's request,Approvals > Positive,Functional,High,"FR-3.1, FR-3.3",Pending request from direct report,"1. Open Team Requests
+2. Approve request",Status Approved; balance deducted; employee receives approval email,,Positive,TC-022
+Manager rejects with valid comment,Approvals > Positive,Functional,High,"FR-3.2, FR-3.3",,1. Reject with comment,Status Rejected; comment saved; rejection email sent with comment,Comment: 'Team coverage needed',Positive,TC-023
+Reject login with wrong password,Login > Negative,Functional,High,FR-1.1,Active user exists,"1. Enter valid email and wrong password
+2. Click Login",Generic 'Invalid email or password' error; no session; failed-attempt counter +1,user@corp.com / Wrong@123,Negative,TC-002
+Reject start date in the past,Apply Leave > Negative,Functional,High,FR-2.2,,"1. Pick yesterday as start
+2. Submit",Validation error 'Start date cannot be in the past'; nothing saved,Start = yesterday,Negative,TC-013
+Reject end date before start date,Apply Leave > Negative,Functional,High,FR-2.2,,"1. Enter dates
+2. Submit",Validation error; nothing saved,"Start = +5, End = +3",Negative,TC-014
+Reject without comment blocked,Approvals > Negative,Functional,High,FR-3.2,,1. Click Reject with empty comment,Validation error; status stays Pending,,Negative,TC-024
+Reject login with unregistered email,Login > Negative,Functional,Medium,FR-1.1,,"1. Enter unregistered email and any password
+2. Click Login",Same generic error as wrong password (no user enumeration),nobody@corp.com,Negative,TC-003
+Reject password missing uppercase/digit/special,Login > Negative,Functional,Medium,FR-1.2,,"1. Set/enter each password variant
+2. Submit",Each rejected with a policy message naming the missing rule,valid@1234 ; Valid@abcd ; Valid1234,Negative,TC-004
+Successful login resets failure counter,Login > Corner,Functional,Medium,FR-1.3,,"1. Fail 4 times
+2. Log in successfully
+3. Log out and fail 4 more times",Account not locked (counter reset after success),,Corner,TC-009
+Overlapping pending requests,Apply Leave > Corner,Functional,Medium,FR-2.1,,"1. Submit request for +5..+7
+2. Submit second request +6..+8",Second request blocked as overlapping (see open question),,Corner,TC-019
+Double-click Submit creates one request,Apply Leave > Corner,Functional,Medium,FR-2.1,,"1. Fill valid request
+2. Double-click Submit quickly",Exactly one request created,,Corner,TC-020
+Cannot act on already processed request,Approvals > Corner,Functional,Medium,FR-3.1,,"1. Open request in two tabs
+2. Approve in tab 1
+3. Reject in tab 2",Tab 2 action fails with 'already processed'; status remains Approved,,Corner,TC-027
+Email with leading/trailing spaces and mixed case,Login > Corner,Functional,Low,FR-1.1,,"1. Enter padded mixed-case email + valid password
+2. Login",Email trimmed and matched case-insensitively; login succeeds,'  User@Corp.COM ',Corner,TC-010
+"Reason with emoji, unicode and HTML",Apply Leave > Corner,Functional,Low,FR-2.4,,"1. Submit with reason
+2. View request",Text stored and shown literally; no script executes,'Família 🎉 <script>alert(1)</script>',Corner,TC-021
+Comment of 10 spaces not accepted,Approvals > Corner,Functional,Low,FR-3.2,,1. Reject with whitespace comment,Treated as empty; validation error,10 spaces,Corner,TC-026
+Account locks after 5th consecutive failure,Login > Boundary,Functional,High,FR-1.3,,"1. Enter wrong password 4 times
+2. Verify account status
+3. Enter wrong password a 5th time
+4. Enter the correct password",After 4 failures account still active; after the 5th failure account is locked; correct password rejected with 'Account locked for 15 minutes' message,,Boundary,TC-007
+Lock expires after 15 minutes,Login > Boundary,Functional,High,FR-1.3,Account locked at T0,"1. Attempt login at T0+14:59
+2. Attempt login at T0+15:00",14:59 rejected (locked); 15:00 succeeds with correct password,,Boundary,TC-008
+Request length boundary 29/30/31 days,Apply Leave > Boundary,Functional,High,FR-2.3,,1. Submit each request,29 and 30 accepted; 31 rejected with max-length message,"Unpaid leave of 29, 30, 31 days",Boundary,TC-016
+Annual leave balance boundary,Apply Leave > Boundary,Functional,High,FR-2.5,Balance = 10 days,"1. Submit 10-day request
+2. Submit 11-day request (fresh user)",10 accepted; 11 rejected 'Insufficient balance',Annual 10 days ; Annual 11 days,Boundary,TC-018
+Password length boundary 7/8/9 characters,Login > Boundary,Functional,Medium,FR-1.2,,1. Submit each password,7 rejected; 8 and 9 accepted,Va@1234 (7) ; Va@12345 (8) ; Va@123456 (9),Boundary,TC-005
+Password length boundary 19/20/21 characters,Login > Boundary,Functional,Medium,FR-1.2,,1. Submit each password,19 and 20 accepted; 21 rejected,"19, 20 and 21-char compliant passwords",Boundary,TC-006
+Start date today and end = start accepted,Apply Leave > Boundary,Functional,Medium,"FR-2.2, FR-2.3",,1. Submit 1-day request for today,Accepted as 1-day request,Start = End = today,Boundary,TC-015
+Rejection comment boundary 9/10 chars,Approvals > Boundary,Functional,Medium,FR-3.2,,"1. Reject with 9-char comment
+2. Reject with 10-char comment",9 rejected; 10 accepted,'123456789' ; '1234567890',Boundary,TC-025
+Reason length boundary 0/250/251,Apply Leave > Boundary,Functional,Low,FR-2.4,,1. Submit with each reason,Empty and 250 accepted; 251 blocked (counter/validation),empty ; 250 chars ; 251 chars,Boundary,TC-017

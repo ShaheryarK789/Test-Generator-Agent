@@ -1,0 +1,8 @@
+{"type":"stage","stage":0,"text":"Starting Claude Code (your subscription)","t":1795109422010}
+{"type":"log","text":"Session started · model claude-opus-5-5","t":1795109424881}
+{"type":"stage","stage":1,"t":1795109427427}
+{"type":"log","tool":"Skill","text":"Loading skill \"qa-test-generator\"","t":1795109427428}
+{"type":"log","tool":"Read","text":"Reading sample-requirements.md","t":1795109427891}
+{"type":"log","tool":"Bash","text":"Running: cd /c/Users/Hp/Test-Generator/.claude/skills/qa-test-generator && cat references/json-sche","t":1795109432288}
+{"type":"log","tool":"Read","text":"Studying test-design-guide.md","t":1795109435456}
+{"type":"error","text":"Cancelled by user","t":1795109524903}

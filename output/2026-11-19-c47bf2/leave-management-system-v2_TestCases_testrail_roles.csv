@@ -1,0 +1,57 @@
+﻿Title,Section,Type,Priority,References,Preconditions,Steps,Expected Result,Category,Source ID
+Employee can apply for leave,Roles & Permissions > Employee > Positive,Security,High,FR-4.1,"Logged in as: Employee
+Logged in as Employee","1. Open Apply Leave
+2. Submit valid request",Request created with status Pending,Positive,RBAC-001
+Manager can approve team leave,Roles & Permissions > Manager > Positive,Security,High,FR-4.2,"Logged in as: Manager
+Logged in as Manager; direct report has Pending request","1. Open Team Requests
+2. Approve request",Status = Approved,Positive,RBAC-005
+HR Admin can approve or reject any leave,Roles & Permissions > HR Admin > Positive,Security,High,FR-4.2,"Logged in as: HR Admin
+Logged in as HR Admin; Pending request from any department","1. Open request
+2. Reject with valid comment",Status = Rejected (scope 'all employees' assumed – open question),Positive,RBAC-006
+HR Admin can edit an employee's leave balance,Roles & Permissions > HR Admin > Positive,Security,High,FR-4.3,"Logged in as: HR Admin
+Logged in as HR Admin; E1 Annual balance 20","1. Open E1 balances
+2. Change Annual to 25
+3. Save",Balance = 25; change audited (who/when/old/new); E1 sees 25,Positive,RBAC-009
+Manager can apply for own leave,Roles & Permissions > Manager > Positive,Security,Medium,FR-4.1,"Logged in as: Manager
+Logged in as Manager","1. Open Apply Leave
+2. Submit valid request",Request created and routed to the manager's own manager,Positive,RBAC-002
+HR Admin can apply for own leave,Roles & Permissions > HR Admin > Positive,Security,Medium,FR-4.1,"Logged in as: HR Admin
+Logged in as HR Admin","1. Open Apply Leave
+2. Submit valid request",Request created and routed to the HR Admin's manager,Positive,RBAC-003
+Manager can view direct team's leave,Roles & Permissions > Manager > Positive,Security,Medium,FR-4.4,"Logged in as: Manager
+Logged in as Manager M1 with reports E1, E2",1. Open Team Leave view,Leaves of E1 and E2 listed; no other employees shown,Positive,RBAC-012
+HR Admin can view all employees' leave,Roles & Permissions > HR Admin > Positive,Security,Medium,FR-4.4,"Logged in as: HR Admin
+Logged in as HR Admin","1. Open All Leave view
+2. Filter across departments",Leaves of all employees visible,Positive,RBAC-014
+Employee cannot approve or reject leave,Roles & Permissions > Employee > Negative,Security,High,FR-4.2,"Logged in as: Employee
+Logged in as Employee; a colleague's request L-100 is Pending","1. Look for Team Requests / Approve controls
+2. Open approval URL directly
+3. PATCH /api/v1/leaves/L-100/status",Menu and buttons hidden; direct URL shows access denied; API returns 403; status unchanged,Negative,RBAC-004
+Employee cannot edit leave balances,Roles & Permissions > Employee > Negative,Security,High,FR-4.3,"Logged in as: Employee
+Logged in as Employee","1. Look for balance edit controls
+2. Open balance admin URL directly
+3. Call balance update API (endpoint TBC) with own employeeId",Controls hidden; URL denied; API 403; balance unchanged,Negative,RBAC-007
+Manager cannot edit leave balances,Roles & Permissions > Manager > Negative,Security,High,FR-4.3,"Logged in as: Manager
+Logged in as Manager","1. Open direct report's profile
+2. Look for balance edit
+3. Open balance admin URL and call API directly",Edit not available; URL denied; API 403; balance unchanged,Negative,RBAC-008
+Employee cannot view other employees' leave,Roles & Permissions > Employee > Negative,Security,High,FR-4.4,"Logged in as: Employee
+Logged in as Employee E1; E2 has leave L-201","1. Look for team/all leave views
+2. Open /leaves/L-201 directly
+3. GET /api/v1/leaves/L-201",Only own leaves visible; URL denied; API 403/404; no E2 data shown,Negative,RBAC-011
+Manager cannot view leave outside own team,Roles & Permissions > Manager > Negative,Security,High,FR-4.4,"Logged in as: Manager
+Logged in as M1; E9 (team of M2) has leave L-200","1. Search for E9 in leave view
+2. Open /leaves/L-200 directly
+3. GET /api/v1/leaves/L-200",E9 not visible; URL denied; API 403/404,Negative,RBAC-013
+Role downgrade while logged in revokes access,Roles & Permissions > Manager > Corner,Security,High,FR-4.2,"Logged in as: Manager
+M1 logged in; HR changes M1 role to Employee","1. With existing session/JWT, attempt approve via UI and API",Approve denied (403) on next action or after token refresh – max delay TBC; no status change,Corner,RBAC-015
+Employee cannot escalate privileges via tampered JWT role claim,Roles & Permissions > Employee > Corner,Security,High,"FR-4.3, FR-5.3","Logged in as: Employee
+Employee JWT with role claim edited to HR_ADMIN (signature invalid)",1. Call PATCH /api/v1/leaves/{id}/status and balance API with tampered token,401 invalid token; no change; attempt logged,Corner,RBAC-016
+Deactivated user cannot log in or use existing token,Roles & Permissions > Employee > Corner,Security,High,"FR-4.1, FR-1.1","Logged in as: Employee
+E3 deactivated by HR while holding a valid JWT","1. Attempt login
+2. POST /api/v1/leaves with old JWT",Login refused; API returns 401/403; no leave created,Corner,RBAC-017
+HR Admin balance edit rejects invalid values,Roles & Permissions > HR Admin > Boundary,Security,Medium,FR-4.3,"Logged in as: HR Admin
+Logged in as HR Admin","1. Set Annual balance to -1
+2. Set to 0
+3. Set to 2.5
+4. Set to non-numeric 'abc'",-1 and 'abc' rejected; 0 accepted; decimals per clarified rule (open question),Boundary,RBAC-010

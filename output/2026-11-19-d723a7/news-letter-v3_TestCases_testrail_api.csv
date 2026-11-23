@@ -1,0 +1,169 @@
+﻿Title,Section,Type,Priority,References,Preconditions,Steps,Expected Result,Category,Source ID
+POST /api/subscribe returns 201 for new valid email,API > Subscribe API > Positive,Functional,High,"REQ-3, REQ-1","api.new01@example.com not subscribed
+Headers: {
+  ""Content-Type"": ""application/json""
+}","POST /api/subscribe
+Body: {
+  ""email"": ""api.new01@example.com""
+}
+1. Send request
+2. Validate status code
+3. Validate response body and Content-Type
+4. Verify subscriber persisted (DB or repeat call returns 409)","Status 201
+201 Created; Content-Type application/json; subscriber persisted (response schema TBD - open question)",Positive,API-001
+POST /api/subscribe returns 409 for duplicate email,API > Subscribe API > Negative,Functional,High,"REQ-3, REQ-2","api.dup@example.com already subscribed
+Headers: {
+  ""Content-Type"": ""application/json""
+}","POST /api/subscribe
+Body: {
+  ""email"": ""api.dup@example.com""
+}
+1. Send request
+2. Validate status code and error body","Status 409
+409 Conflict; error body/message corresponds to ""Already subscribed""; no duplicate row",Negative,API-002
+POST /api/subscribe returns 400 for invalid email format,API > Subscribe API > Negative,Functional,High,"REQ-3, REQ-1","None
+Headers: {
+  ""Content-Type"": ""application/json""
+}","POST /api/subscribe
+Body: {
+  ""email"": ""not-an-email""
+}
+1. Send request
+2. Validate status code and error body","Status 400
+400 Bad Request; error identifies invalid email; nothing stored",Negative,API-003
+POST /api/subscribe returns 400 when email missing,API > Subscribe API > Negative,Functional,High,REQ-3,"None
+Headers: {
+  ""Content-Type"": ""application/json""
+}","POST /api/subscribe
+Body: {}
+1. Send request with empty object
+2. Validate status code","Status 400
+400 Bad Request; error indicates email is required",Negative,API-004
+Injection payload in email returns 400,API > Subscribe API > Negative,Functional,High,"REQ-3, REQ-1","None
+Headers: {
+  ""Content-Type"": ""application/json""
+}","POST /api/subscribe
+Body: {
+  ""email"": ""' OR 1=1--@x.com<script>""
+}
+1. Send request
+2. Validate status and response","Status 400
+400; no DB error text in response; nothing stored",Negative,API-015
+POST /api/subscribe returns 400 for empty string and null email,API > Subscribe API > Negative,Functional,Medium,REQ-3,"None
+Headers: {
+  ""Content-Type"": ""application/json""
+}","POST /api/subscribe
+Body: {
+  ""email"": """"
+}
+1. Send with email = """"
+2. Send with email = null
+3. Validate status for both","Status 400
+400 for both variants; nothing stored",Negative,API-005
+POST /api/subscribe returns 400 for non-string email type,API > Subscribe API > Negative,Functional,Medium,REQ-3,"None
+Headers: {
+  ""Content-Type"": ""application/json""
+}","POST /api/subscribe
+Body: {
+  ""email"": 12345
+}
+1. Send request
+2. Also try email as array [""a@b.co""]
+3. Validate status","Status 400
+400; no 500 error; nothing stored",Negative,API-006
+POST /api/subscribe returns 400 for malformed JSON,API > Subscribe API > Negative,Functional,Medium,REQ-3,"None
+Headers: {
+  ""Content-Type"": ""application/json""
+}","POST /api/subscribe
+Body: {""email"": ""a@b.co""
+1. Send truncated JSON body
+2. Validate status","Status 400
+400; no stack trace leaked; nothing stored",Negative,API-007
+GET /api/subscribe is not allowed,API > Subscribe API > Negative,Functional,Low,REQ-3,"None
+Headers: {}","GET /api/subscribe
+1. Send GET request
+2. Validate status","Status 405
+405 Method Not Allowed (or 404); subscriber list not exposed",Negative,API-008
+Wrong Content-Type is rejected,API > Subscribe API > Negative,Functional,Low,REQ-3,"None
+Headers: {
+  ""Content-Type"": ""text/plain""
+}","POST /api/subscribe
+Body: email=api.ct@example.com
+1. Send request
+2. Validate status","Status 415
+415 Unsupported Media Type or 400; nothing stored",Negative,API-016
+Concurrent identical requests yield one 201 and one 409,API > Subscribe API > Corner,Functional,High,"REQ-3, REQ-2","api.race@example.com not subscribed
+Headers: {
+  ""Content-Type"": ""application/json""
+}","POST /api/subscribe
+Body: {
+  ""email"": ""api.race@example.com""
+}
+1. Fire 2 identical requests in parallel
+2. Collect statuses
+3. Count stored rows","Status 201
+Exactly one 201 and one 409; exactly one row stored (unique constraint enforced)",Corner,API-012
+Case-variant duplicate returns 409,API > Subscribe API > Corner,Functional,Medium,"REQ-3, REQ-2","api.dup@example.com already subscribed
+Headers: {
+  ""Content-Type"": ""application/json""
+}","POST /api/subscribe
+Body: {
+  ""email"": ""API.DUP@EXAMPLE.COM""
+}
+1. Send request
+2. Validate status","Status 409
+Assumed case-insensitive: 409; no new row",Corner,API-013
+Rapid repeated requests are rate limited,API > Subscribe API > Corner,Functional,Medium,REQ-3,"Rate limit configured (threshold unknown - open question)
+Headers: {
+  ""Content-Type"": ""application/json""
+}","POST /api/subscribe
+Body: {
+  ""email"": ""api.rl<n>@example.com""
+}
+1. Send 100 requests with unique emails from one IP within 60s
+2. Observe statuses","Status 429
+After the configured threshold, 429 Too Many Requests returned (if rate limiting is in scope)",Corner,API-017
+Extra unknown fields are ignored,API > Subscribe API > Corner,Functional,Low,REQ-3,"Email not subscribed
+Headers: {
+  ""Content-Type"": ""application/json""
+}","POST /api/subscribe
+Body: {
+  ""email"": ""api.extra@example.com"",
+  ""isAdmin"": true,
+  ""id"": 1
+}
+1. Send request
+2. Validate status
+3. Verify only email persisted","Status 201
+201 (or 400 if strict schema); extra fields not persisted (no mass assignment)",Corner,API-014
+POST /api/subscribe accepts 100-char email,API > Subscribe API > Boundary,Functional,High,"REQ-3, REQ-1","Email not subscribed
+Headers: {
+  ""Content-Type"": ""application/json""
+}","POST /api/subscribe
+Body: {
+  ""email"": ""<88 x 'a'>@example.com (100 chars)""
+}
+1. Send request
+2. Validate status
+3. Verify stored value length = 100","Status 201
+201; full 100-char email stored",Boundary,API-009
+POST /api/subscribe rejects 101-char email,API > Subscribe API > Boundary,Functional,High,"REQ-3, REQ-1","None
+Headers: {
+  ""Content-Type"": ""application/json""
+}","POST /api/subscribe
+Body: {
+  ""email"": ""<89 x 'a'>@example.com (101 chars)""
+}
+1. Send request
+2. Validate status","Status 400
+400; error indicates max length; nothing stored (no DB truncation)",Boundary,API-010
+POST /api/subscribe accepts 99-char email,API > Subscribe API > Boundary,Functional,Medium,"REQ-3, REQ-1","Email not subscribed
+Headers: {
+  ""Content-Type"": ""application/json""
+}","POST /api/subscribe
+Body: {
+  ""email"": ""<87 x 'a'>@example.com (99 chars)""
+}
+1. Send request
+2. Validate status","Status 201
+201; email stored",Boundary,API-011

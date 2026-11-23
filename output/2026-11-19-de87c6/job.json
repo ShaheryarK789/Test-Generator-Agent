@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-19-de87c6",
+  "project": "New letter v2",
+  "slug": "new-letter-v2",
+  "status": "error",
+  "createdAt": "2026-11-19T17:30:22.009Z",
+  "sources": [
+    "sample-requirements.md"
+  ],
+  "inputs": [
+    {
+      "name": "sample-requirements.md",
+      "size": 1411,
+      "kind": "file"
+    }
+  ],
+  "run": {
+    "project": "New letter v2",
+    "slug": "new-letter-v2",
+    "outDirRel": "output/2026-11-19-de87c6",
+    "sources": [
+      "uploads/2026-11-19-de87c6/sample-requirements.md"
+    ],
+    "urls": []
+  },
+  "model": "claude-opus-5-5",
+  "toolCalls": 4,
+  "finishedAt": "2026-11-19T17:32:04.902Z",
+  "summary": "Cancelled by user"
+}

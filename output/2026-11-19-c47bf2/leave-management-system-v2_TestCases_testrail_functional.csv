@@ -1,0 +1,182 @@
+﻿Title,Section,Type,Priority,References,Preconditions,Steps,Expected Result,Test Data,Category,Source ID
+Log in with valid email and password,Login > Positive,Functional,High,FR-1.1,Active account emp1@corp.com exists with password Valid@123,"1. Open login page
+2. Enter email and password
+3. Click Login",User is redirected to the dashboard; session is created; user name shown in header,Email = emp1@corp.com; Password = Valid@123,Positive,TC-001
+Apply for Annual leave with valid dates,Apply for Leave > Positive,Functional,High,FR-2.1,Employee logged in; Annual balance = 20,"1. Open Apply Leave
+2. Fill form
+3. Submit",Request created with status Pending; confirmation shown; appears in My Leaves; routed to direct manager,Type = Annual; Start = today+7; End = today+9; Reason = Family trip,Positive,TC-026
+Apply for Sick leave with valid dates,Apply for Leave > Positive,Functional,High,FR-2.1,Employee logged in,"1. Open Apply Leave
+2. Select Sick
+3. Enter dates
+4. Submit",Request created with status Pending and type Sick; Annual balance unchanged,Type = Sick; Start = today; End = today+1,Positive,TC-027
+Apply Annual leave within remaining balance,Leave Balance > Positive,Functional,High,FR-2.5,Annual balance = 20,"1. Apply 5 days Annual
+2. Check balance",Request created; balance displays per clarified rule (reserved/pending vs deducted on approval),Annual; 5 days,Positive,TC-052
+Manager approves pending request of direct report,Approve / Reject > Positive,Functional,High,FR-3.1,Manager M1 logged in; direct report E1 has Pending Annual request of 3 days; balance 20,"1. Open Team Requests
+2. Open L-100
+3. Click Approve",Status = Approved; approver and timestamp recorded; E1 Annual balance = 17; request leaves pending queue,Request L-100,Positive,TC-063
+Manager rejects request with valid comment,Approve / Reject > Positive,Functional,High,"FR-3.1, FR-3.2",M1 logged in; E1 has Pending request L-101,"1. Open L-101
+2. Click Reject
+3. Enter comment
+4. Confirm",Status = Rejected; comment stored and visible to E1; balance unchanged,Comment = 'Project deadline that week',Positive,TC-064
+Employee receives email on approval,Notifications > Positive,Functional,High,FR-3.3,E1 request approved by M1; test mailbox for E1,"1. Approve request
+2. Check E1 mailbox","One email to E1's registered address with leave type, dates, status Approved and approver name",Request L-100,Positive,TC-077
+Employee receives email on rejection including comment,Notifications > Positive,Functional,High,FR-3.3,E1 request rejected with comment,"1. Reject request
+2. Check E1 mailbox",One email to E1 with status Rejected and the rejection comment text,Comment = 'Project deadline that week',Positive,TC-078
+Apply for Unpaid leave with valid dates,Apply for Leave > Positive,Functional,Medium,FR-2.1,Employee logged in,"1. Select Unpaid
+2. Enter dates
+3. Submit",Request created with status Pending and type Unpaid; Annual balance unchanged,Type = Unpaid; Start = today+3; End = today+5,Positive,TC-028
+Submit leave with Reason left empty,Leave Reason > Positive,Functional,Medium,FR-2.4,Employee logged in,"1. Fill mandatory fields
+2. Leave Reason blank
+3. Submit",Request created; reason stored as empty,Reason = (blank),Positive,TC-046
+New employee has default Annual balance of 20 days,Leave Balance > Positive,Functional,Medium,FR-2.5,"Newly created employee, no HR override","1. Log in as new employee
+2. View leave balance",Annual balance = 20 days (proration for mid-year joiners: open question),N/A,Positive,TC-056
+Sick and Unpaid leave are not limited by Annual balance,Leave Balance > Positive,Functional,Medium,"FR-2.5, FR-2.1",Annual balance = 0,"1. Apply Sick 3 days
+2. Apply Unpaid 3 days",Both requests created; Annual balance remains 0 (assumption: no Sick/Unpaid caps stated),Sick; 3 days / Unpaid; 3 days,Positive,TC-057
+"Leave type dropdown lists only Annual, Sick and Unpaid",Apply for Leave > Positive,Usability,Low,FR-2.1,Employee logged in,"1. Open Apply Leave
+2. Expand Leave Type dropdown","Exactly 3 options: Annual, Sick, Unpaid",N/A,Positive,TC-029
+Approval does not require a comment,Rejection Comment > Positive,Functional,Low,"FR-3.2, FR-3.1",M1 viewing Pending request,1. Click Approve without comment,Status = Approved (comment optional on approval),Comment = (blank),Positive,TC-076
+Reject login with wrong password,Login > Negative,Security,High,FR-1.1,Active account emp1@corp.com exists,"1. Open login page
+2. Enter email and wrong password
+3. Click Login",Login fails with a generic 'Invalid email or password' error (exact text TBC); no session created; failed-attempt counter = 1,Email = emp1@corp.com; Password = Wrong@123,Negative,TC-002
+Reject SQL injection string in email field,Login > Negative,Security,High,FR-1.1,None,"1. Enter injection string
+2. Click Login",Login fails with validation/generic error; no session; no DB error or stack trace exposed,Email = ' OR 1=1--; Password = x,Negative,TC-006
+Password is case-sensitive,Login > Negative,Security,High,FR-1.1,Account with password Valid@123,"1. Enter correct email and password with different case
+2. Click Login",Login fails with generic error,Password = valid@123,Negative,TC-008
+Reason with script tag is stored and displayed safely,Leave Reason > Negative,Security,High,FR-2.4,Employee logged in,"1. Submit request with reason
+2. Manager opens the request",Text is escaped and displayed literally; no script executes for employee or manager,Reason = <script>alert(1)</script>,Negative,TC-050
+Reject Annual leave when balance is zero,Leave Balance > Negative,Functional,High,FR-2.5,Annual balance = 0,"1. Apply 1 day Annual
+2. Submit",Balance error shown; no request created,Annual; 1 day,Negative,TC-055
+Manager cannot act on non-direct report's request,Approve / Reject > Negative,Security,High,FR-3.1,M1 logged in; E9 reports to M2; E9 has Pending request L-200,"1. Check Team Requests list
+2. Open /leaves/L-200 via direct URL
+3. Attempt approve",L-200 not listed; direct URL shows access denied; approve blocked (403); status remains Pending,Request L-200,Negative,TC-065
+Manager cannot approve own leave request,Approve / Reject > Negative,Security,High,FR-3.1,M1 has own Pending request L-300,"1. Open own request
+2. Attempt to approve via UI and API",Approve not available; API returns 403; request routed to M1's own manager,Request L-300,Negative,TC-066
+Reject blocked without comment,Rejection Comment > Negative,Functional,High,FR-3.2,M1 viewing Pending request,"1. Click Reject
+2. Leave comment blank
+3. Confirm",Error 'Comment is required (min 10 characters)'; status remains Pending,Comment = (blank),Negative,TC-071
+Reject login with unregistered email,Login > Negative,Security,Medium,FR-1.1,None,"1. Enter unregistered email and any password
+2. Click Login",Same generic error as wrong password (no user enumeration); no session created,Email = nobody@corp.com; Password = Valid@123,Negative,TC-003
+Reject login with malformed email,Login > Negative,Functional,Medium,FR-1.1,None,"1. Enter malformed email and a password
+2. Click Login",Inline validation 'Enter a valid email address'; no request sent / login fails,Email = emp1corp.com,Negative,TC-004
+Reject login with empty email and password,Login > Negative,Functional,Medium,FR-1.1,None,"1. Leave both fields blank
+2. Click Login",Required-field errors shown for both fields; login not attempted,Email = (blank); Password = (blank),Negative,TC-005
+Reject password without uppercase letter,Password Policy > Negative,Functional,Medium,FR-1.2,On set/change password screen,"1. Enter password
+2. Submit",Rejected with message indicating an uppercase letter is required,Password = abcdef1@,Negative,TC-015
+Reject password without digit,Password Policy > Negative,Functional,Medium,FR-1.2,On set/change password screen,"1. Enter password
+2. Submit",Rejected with message indicating a digit is required,Password = Abcdefg@,Negative,TC-016
+Reject password without special character,Password Policy > Negative,Functional,Medium,FR-1.2,On set/change password screen,"1. Enter password
+2. Submit",Rejected with message indicating a special character is required,Password = Abcdefg1,Negative,TC-017
+Reject submission without leave type,Apply for Leave > Negative,Functional,Medium,FR-2.1,Employee logged in,"1. Leave type blank
+2. Submit",Error 'Leave type is required'; no request created,Type = (none); Start = today+1; End = today+1,Negative,TC-030
+Reject tampered leave type value,Apply for Leave > Negative,Security,Medium,FR-2.1,Employee logged in; browser dev tools,"1. Modify dropdown value via dev tools
+2. Submit",Server rejects with validation error; no request created,Type = Maternity (injected into select),Negative,TC-031
+Reject missing start or end date,Leave Dates > Negative,Functional,Medium,FR-2.2,Employee logged in,"1. Leave start date blank
+2. Submit",Required-field error on start date; no request created,Start = (blank); End = today+3,Negative,TC-036
+Cannot approve or reject already approved request,Approve / Reject > Negative,Functional,Medium,FR-3.1,Request L-100 is Approved,"1. Open L-100
+2. Attempt Reject",Approve/Reject actions not shown; server rejects state change; status stays Approved,Request L-100,Negative,TC-067
+No email sent when rejection fails validation,Notifications > Negative,Functional,Medium,"FR-3.3, FR-3.2",M1 attempts reject with 5-char comment,"1. Attempt reject
+2. Check E1 mailbox",No email sent; status Pending,Comment = 'No go',Negative,TC-079
+Reject invalid typed date,Leave Dates > Negative,Functional,Low,FR-2.2,Employee logged in,"1. Type invalid date manually
+2. Submit",Error 'Enter a valid date'; no request created,Start = 2027-02-30,Negative,TC-037
+Pending requests count toward balance check,Leave Balance > Corner,Functional,High,FR-2.5,Annual balance = 10; one pending Annual request of 8 days,"1. Apply 5 days Annual
+2. Submit",Per clarified rule; expected: rejected because 8 + 5 > 10 (prevents overbooking),New Annual request of 5 days,Corner,TC-058
+Concurrent Annual submissions cannot exceed balance,Leave Balance > Corner,Functional,High,FR-2.5,Annual balance = 5; two browser tabs,"1. Prepare both forms
+2. Submit both simultaneously",Only one request accepted; the other rejected with balance error,Tab A: 5 days; Tab B: 5 days (different dates),Corner,TC-059
+Successful login resets failed-attempt counter,Account Lockout > Corner,Security,Medium,FR-1.3,Active account,"1. Fail 4 times
+2. Log in successfully and log out
+3. Fail 4 more times
+4. Log in with correct password",Account not locked; final login succeeds (attempts must be consecutive),"4 failures, 1 success, log out, 4 failures, 1 success",Corner,TC-021
+Failed attempts during lock do not extend lock period,Account Lockout > Corner,Security,Medium,FR-1.3,Account locked at time T,"1. Attempt login during lock
+2. Attempt correct login after 15 min from original lock",Behaviour per clarified rule (open question); default assumption: lock not extended and login succeeds at T + 15:01,Wrong password at T + 10 min; correct password at T + 15:01,Corner,TC-024
+Lockout counts failures across browsers and devices,Account Lockout > Corner,Security,Medium,FR-1.3,Active account,"1. Fail 3 times in browser A
+2. Fail 2 times in browser B
+3. Try correct password","Account locked (counter is per account, not per session)",3 failures on Chrome + 2 on Firefox,Corner,TC-025
+Past-date validation uses correct timezone around midnight,Leave Dates > Corner,Functional,Medium,FR-2.2,"User timezone differs from server timezone (e.g. user UTC+5, server UTC)","1. Set client clock/timezone
+2. Apply with start = local today
+3. Submit",Request accepted per agreed reference timezone (open question); not wrongly rejected as past,Submit at 00:30 user-local with Start = user-local today,Corner,TC-038
+Duration counting rule for weekends and public holidays,Leave Duration > Corner,Functional,Medium,"FR-2.3, FR-2.5",Employee logged in; Annual balance = 20,"1. Apply over a weekend
+2. Check displayed duration and balance deduction","Duration and deduction follow the clarified rule (calendar vs working days – open question); value shown consistently in form, list and balance",Annual; Fri today+X to Mon today+X+3 (4 calendar / 2 working days),Corner,TC-045
+Double-click Submit creates only one request,Apply for Leave > Corner,Functional,Medium,FR-2.1,Employee logged in,"1. Fill form
+2. Double-click Submit quickly",Exactly one request created; button disabled after first click,Valid Annual request,Corner,TC-060
+Overlapping leave request for same dates,Apply for Leave > Corner,Functional,Medium,FR-2.2,Employee has pending request today+10 to today+12,1. Submit overlapping request,Per clarified rule; expected: rejected with 'Overlaps an existing request',New request today+11 to today+13,Corner,TC-061
+Indirect report (skip-level) request not actionable by manager,Approve / Reject > Corner,Security,Medium,FR-3.1,"E5 reports to M2, M2 reports to M1; E5 has Pending request","1. Log in as M1
+2. Look for E5's request; try direct URL",M1 cannot approve/reject (direct reports only),E5 request,Corner,TC-068
+Two approvers acting on the same request concurrently,Approve / Reject > Corner,Functional,Medium,FR-3.1,Request L-102 Pending; M1 and HR Admin both have it open,1. Both click action simultaneously,First action wins; second gets 'Request already processed'; single final status; single notification,"M1 approves, HR rejects at same time",Corner,TC-069
+Whitespace-only comment does not satisfy minimum length,Rejection Comment > Corner,Functional,Medium,FR-3.2,M1 viewing Pending request,"1. Enter comment
+2. Confirm Reject",Rejected as too short (assumption: comment trimmed before length check); status remains Pending,Comment = 12 spaces; also '   abc      ' (3 non-space chars),Corner,TC-075
+Status change persists when email service is down,Notifications > Corner,Functional,Medium,FR-3.3,SMTP/email service unavailable,"1. Approve request
+2. Restore email service",Approval saved; failure logged; email retried/queued and delivered after recovery (retry policy: open question),Approve request L-103,Corner,TC-080
+Email login is case-insensitive and trims spaces,Login > Corner,Functional,Low,FR-1.1,Account emp1@corp.com exists,"1. Enter mixed-case email with leading/trailing spaces
+2. Click Login",Login succeeds (assumption: email is case-insensitive and trimmed),Email = '  EMP1@Corp.com  '; Password = Valid@123,Corner,TC-007
+Handle password containing spaces and unicode characters,Password Policy > Corner,Functional,Low,FR-1.2,On set/change password screen,"1. Enter password
+2. Submit
+3. Log out and log in with same password","Behaviour matches the clarified policy (open question); if accepted, subsequent login with the identical string succeeds","Password = 'Ab 1@cdé€' (9 chars incl. space, accented letter, €)",Corner,TC-018
+Leave spanning leap day and year end,Leave Dates > Corner,Functional,Low,"FR-2.2, FR-2.3",Employee logged in,"1. Apply with each date range
+2. Check computed duration",Duration computed correctly (4 days) including 29 Feb; year-crossing request accepted and balance year handling matches clarified rule,Start = 2028-02-27; End = 2028-03-01 (4 days incl. 29 Feb); also 2026-12-30 to 2027-01-02,Corner,TC-039
+Reason with emoji and RTL text counts characters correctly,Leave Reason > Corner,Functional,Low,FR-2.4,Employee logged in,"1. Enter reason
+2. Submit",Counter and server agree on length; request accepted and text displayed without corruption,Reason = 248 chars + '😀' + 'م' (250 visible chars),Corner,TC-051
+Session timeout while filling leave form,Apply for Leave > Corner,Functional,Low,"FR-2.1, FR-1.1",Employee logged in; session expired before submit,"1. Fill form
+2. Let session expire
+3. Submit",User redirected to login; no request created; no data corruption,Valid form,Corner,TC-062
+Reporting line change re-routes pending requests,Approve / Reject > Corner,Functional,Low,FR-3.1,E1 has Pending request; E1 moved from M1 to M2,"1. Change E1's manager
+2. Check queues of M1 and M2",Per clarified rule; expected: request appears for M2 and is no longer actionable by M1,N/A,Corner,TC-070
+Email content escapes special characters in comment,Notifications > Corner,Security,Low,FR-3.3,Rejection comment contains HTML,"1. Reject with comment
+2. Open email",Comment shown as literal text; no HTML injection in email,Comment = '<b>Not now</b> & later',Corner,TC-081
+Accept password of exactly 8 characters meeting all rules,Password Policy > Boundary,Functional,High,FR-1.2,On set/change password screen (assumption: policy enforced at password set/change),"1. Enter password
+2. Submit",Password accepted and saved,Password = Abcde1@x (8 chars),Boundary,TC-009
+Reject password of 7 characters,Password Policy > Boundary,Functional,High,FR-1.2,On set/change password screen,"1. Enter password
+2. Submit",Rejected with message 'Password must be 8–20 characters'; password not changed,Password = Abcd1@x (7 chars),Boundary,TC-010
+Accept password of exactly 20 characters,Password Policy > Boundary,Functional,High,FR-1.2,On set/change password screen,"1. Enter password
+2. Submit",Password accepted and saved,Password = Abcdefghijklmnop1@xy (20 chars),Boundary,TC-012
+Reject password of 21 characters,Password Policy > Boundary,Functional,High,FR-1.2,On set/change password screen,"1. Enter password
+2. Submit",Rejected with message 'Password must be 8–20 characters'; field not silently truncated,Password = Abcdefghijklmnopq1@xy (21 chars),Boundary,TC-014
+Lock account after 5 consecutive failed attempts,Account Lockout > Boundary,Security,High,FR-1.3,"Active account, 0 failed attempts","1. Enter wrong password 5 times in a row
+2. Enter correct password",After 5th failure account is locked; message 'Account locked. Try again in 15 minutes' (text TBC); correct password also rejected while locked,5 x wrong password,Boundary,TC-019
+Do not lock account after 4 failed attempts,Account Lockout > Boundary,Security,High,FR-1.3,"Active account, 0 failed attempts","1. Enter wrong password 4 times
+2. Enter correct password",Login succeeds on 5th attempt; account not locked,"4 x wrong password, then correct password",Boundary,TC-020
+Account unlocks automatically after 15 minutes,Account Lockout > Boundary,Security,High,FR-1.3,Account locked at time T,"1. Wait 15 minutes after lock
+2. Log in with correct password",Login succeeds; failed-attempt counter reset to 0,Login at T + 15:00 (and T + 15:01) with correct password,Boundary,TC-023
+Accept start date equal to today,Leave Dates > Boundary,Functional,High,FR-2.2,Employee logged in,"1. Enter dates
+2. Submit",Request created (today is not in the past),Start = today; End = today,Boundary,TC-032
+Reject start date of yesterday,Leave Dates > Boundary,Functional,High,FR-2.2,Employee logged in,"1. Enter dates
+2. Submit",Error 'Start date cannot be in the past'; no request created; past dates disabled in date picker,Start = today-1; End = today,Boundary,TC-033
+Accept end date equal to start date,Leave Dates > Boundary,Functional,High,FR-2.2,Employee logged in,"1. Enter dates
+2. Submit",Request created for 1 day,Start = today+5; End = today+5,Boundary,TC-034
+Reject end date one day before start date,Leave Dates > Boundary,Functional,High,FR-2.2,Employee logged in,"1. Enter dates
+2. Submit",Error 'End date must be on or after start date'; no request created,Start = today+5; End = today+4,Boundary,TC-035
+Accept 1-day leave request,Leave Duration > Boundary,Functional,High,FR-2.3,Employee logged in,"1. Enter dates
+2. Submit",Request created; duration = 1 day,Start = today+2; End = today+2 (1 day),Boundary,TC-040
+Accept 30-day Unpaid leave request,Leave Duration > Boundary,Functional,High,FR-2.3,Employee logged in,"1. Enter dates
+2. Submit",Request created; duration = 30 days,Type = Unpaid; Start = today+1; End = today+30 (30 days),Boundary,TC-043
+Reject 31-day leave request,Leave Duration > Boundary,Functional,High,FR-2.3,Employee logged in,"1. Enter dates
+2. Submit",Error 'A single request can be 1 to 30 days'; no request created,Type = Unpaid; Start = today+1; End = today+31 (31 days),Boundary,TC-044
+Accept Annual leave equal to remaining balance,Leave Balance > Boundary,Functional,High,FR-2.5,Annual balance = 5,"1. Apply 5 days Annual
+2. Submit",Request created; balance becomes 0 after approval,Annual; 5 days,Boundary,TC-053
+Reject Annual leave one day over remaining balance,Leave Balance > Boundary,Functional,High,FR-2.5,Annual balance = 5,"1. Apply 6 days Annual
+2. Submit",Error 'Requested days exceed remaining Annual balance (5)'; no request created,Annual; 6 days,Boundary,TC-054
+Reject blocked with 9-character comment,Rejection Comment > Boundary,Functional,High,FR-3.2,M1 viewing Pending request,"1. Click Reject
+2. Enter comment
+3. Confirm",Error 'Comment must be at least 10 characters'; status remains Pending,Comment = 'Too busy.' (9 chars),Boundary,TC-072
+Reject accepted with exactly 10-character comment,Rejection Comment > Boundary,Functional,High,FR-3.2,M1 viewing Pending request,"1. Click Reject
+2. Enter comment
+3. Confirm",Status = Rejected; comment saved,Comment = 'Too busy!!' (10 chars),Boundary,TC-073
+Account remains locked at 14 min 59 s,Account Lockout > Boundary,Security,Medium,FR-1.3,Account locked at time T,"1. Wait 14 min 59 s after lock
+2. Log in with correct password",Login rejected; locked message shown,Login at T + 14:59 with correct password,Boundary,TC-022
+Accept Reason of exactly 250 characters,Leave Reason > Boundary,Functional,Medium,FR-2.4,Employee logged in,"1. Enter 250-char reason
+2. Submit
+3. Open request details",Request created; full 250 characters stored and displayed,Reason = 'a' x 250,Boundary,TC-048
+Reject Reason of 251 characters,Leave Reason > Boundary,Functional,Medium,FR-2.4,Employee logged in,"1. Paste 251-char reason
+2. Submit",Input blocked at 250 or error 'Reason cannot exceed 250 characters'; never silently truncated server-side,Reason = 'a' x 251 (pasted),Boundary,TC-049
+Accept password of 9 characters,Password Policy > Boundary,Functional,Low,FR-1.2,On set/change password screen,"1. Enter password
+2. Submit",Password accepted,Password = Abcde1@xy (9 chars),Boundary,TC-011
+Accept password of 19 characters,Password Policy > Boundary,Functional,Low,FR-1.2,On set/change password screen,"1. Enter password
+2. Submit",Password accepted,Password = Abcdefghijklmno1@xy (19 chars),Boundary,TC-013
+Accept 2-day leave request,Leave Duration > Boundary,Functional,Low,FR-2.3,Employee logged in,"1. Enter dates
+2. Submit",Request created; duration = 2 days,Start = today+2; End = today+3,Boundary,TC-041
+Accept 29-day Unpaid leave request,Leave Duration > Boundary,Functional,Low,FR-2.3,Employee logged in,"1. Enter dates
+2. Submit",Request created; duration = 29 days,Type = Unpaid; Start = today+1; End = today+29 (29 days),Boundary,TC-042
+Accept Reason of 1 character,Leave Reason > Boundary,Functional,Low,FR-2.4,Employee logged in,"1. Enter reason
+2. Submit",Request created; reason saved as 'X',Reason = 'X',Boundary,TC-047
+Reject accepted with 11-character comment,Rejection Comment > Boundary,Functional,Low,FR-3.2,M1 viewing Pending request,"1. Click Reject
+2. Enter comment
+3. Confirm",Status = Rejected,Comment = 'Peak season' (11 chars),Boundary,TC-074

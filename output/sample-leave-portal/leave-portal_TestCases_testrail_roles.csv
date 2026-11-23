@@ -1,0 +1,21 @@
+﻿Title,Section,Type,Priority,References,Preconditions,Steps,Expected Result,Category,Source ID
+Employee can apply for leave,Roles & Permissions > Employee > Positive,Security,High,FR-4,Logged in as: Employee,"1. Log in as Employee
+2. Submit leave request",Request created,Positive,RBAC-001
+Manager approves own team's leave,Roles & Permissions > Manager > Positive,Security,High,"FR-4, FR-3.1",Logged in as: Manager,"1. Log in as Manager
+2. Approve direct report's request",Approved,Positive,RBAC-004
+HR Admin edits leave balance,Roles & Permissions > HR Admin > Positive,Security,High,FR-4,Logged in as: HR Admin,1. Change employee balance 20 -> 22,Saved; audit entry recorded,Positive,RBAC-009
+HR Admin views all employees' leave,Roles & Permissions > HR Admin > Positive,Security,Medium,FR-4,Logged in as: HR Admin,1. Open leave list as HR Admin,All employees visible,Positive,RBAC-010
+Employee cannot approve/reject leave,Roles & Permissions > Employee > Negative,Security,High,FR-4,Logged in as: Employee,"1. Log in as Employee
+2. Look for Team Requests menu
+3. Open approvals URL directly",Menu hidden; direct URL shows 403/access denied,Negative,RBAC-002
+Employee cannot edit leave balances,Roles & Permissions > Employee > Negative,Security,High,FR-4,Logged in as: Employee,1. Open balance admin URL as Employee,403; no change,Negative,RBAC-003
+Manager cannot approve non-direct report,Roles & Permissions > Manager > Negative,Security,High,"FR-3.1, FR-4",Logged in as: Manager,"1. Open other team's request URL
+2. Attempt approve via UI and API",Not visible; API returns 403,Negative,RBAC-005
+Manager cannot edit leave balances,Roles & Permissions > Manager > Negative,Security,High,FR-4,Logged in as: Manager,1. Open balance admin as Manager,403,Negative,RBAC-006
+Manager views team-only leave list,Roles & Permissions > Manager > Corner,Security,High,FR-4,Logged in as: Manager,"1. Open leave list as Manager
+2. Filter/search for non-team employee",Only direct reports shown; non-team employee not found,Corner,RBAC-007
+Manager cannot approve own leave,Roles & Permissions > Manager > Corner,Security,High,FR-3.1,Logged in as: Manager,"1. Manager applies for leave
+2. Attempt to approve it",Not allowed; routed to their manager/HR,Corner,RBAC-008
+Role downgrade takes effect in active session,Roles & Permissions > Manager > Corner,Security,High,FR-4,Logged in as: Manager,"1. Manager logged in
+2. HR changes role to Employee
+3. Manager tries to approve",Action denied (next request at latest),Corner,RBAC-011

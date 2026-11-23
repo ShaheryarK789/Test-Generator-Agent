@@ -1,0 +1,21 @@
+{
+  "id": "sample-leave-portal",
+  "project": "Leave Management Portal (sample)",
+  "slug": "leave-portal",
+  "status": "done",
+  "createdAt": "2026-11-18T09:29:47.139Z",
+  "finishedAt": "2026-11-18T09:29:47.139Z",
+  "sources": [
+    "sample-requirements.md"
+  ],
+  "summary": "50 test cases generated (27 functional, 12 API, 11 role-based). Coverage 15/15 requirements.\nTop open questions: Are overlapping leave requests allowed? Is the 30-day limit calendar or working days? Who approves a manager's own leave?",
+  "inputs": [
+    {
+      "name": "sample-requirements.md",
+      "size": 1411,
+      "kind": "file"
+    }
+  ],
+  "model": "claude-opus-5-5",
+  "durationMs": 0
+}

@@ -1,0 +1,24 @@
+{
+  "id": "2026-11-18-5db79d",
+  "project": "Newsletter Signup",
+  "slug": "newsletter-signup",
+  "status": "done",
+  "createdAt": "2026-11-18T09:37:33.590Z",
+  "sources": [
+    "newsletter-req.txt"
+  ],
+  "run": {
+    "project": "Newsletter Signup",
+    "slug": "newsletter-signup",
+    "outDirRel": "output/2026-11-18-5db79d",
+    "sources": [
+      "uploads/2026-11-18-5db79d/newsletter-req.txt"
+    ],
+    "urls": []
+  },
+  "costUsd": 0.41494780000000003,
+  "durationMs": 87052,
+  "numTurns": 8,
+  "finishedAt": "2026-11-18T09:39:02.703Z",
+  "summary": "I've built the test-case workbook for Newsletter Signup. It has 36 cases (20 Functional, 16 API) and covers all 3 requirements (100%, nothing uncovered).\n\n- **By category:** 6 Positive, 14 Negative, 10 Corner, 6 Boundary. The boundary cases check emails of 99, 100 and 101 characters.\n- **By criticality:** 16 High, 13 Medium, 7 Low.\n- **Roles:** the requirements don't mention any, so there's no permission matrix or role tests.\n- **Files:** `output/2026-11-18-5db79d/newsletter-signup_TestCases.xlsx` plus TestRail CSVs in the same folder. To import, use Test Cases → Import → CSV with the \"Test Case (Text)\" template.\n- **Top open questions:** what the success message says and whether there's a confirmation email; which email-format rule applies, including non-English addresses; whether duplicate checks ignore letter case and spaces, and whether unsubscribed emails count as duplicates. Also unanswered: whether the API needs a login and what its responses contain, and whether there's rate limiting. I logged assumptions for the first three so those cases can still run."
+}

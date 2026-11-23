@@ -1,0 +1,278 @@
+﻿Title,Section,Type,Priority,References,Preconditions,Steps,Expected Result,Category,Source ID
+POST /leaves creates request and returns 201 with leaveId,API > Leaves API > Positive,Functional,High,"FR-5.1, FR-2.1","Valid JWT for employee E1; Annual balance 20
+Headers: {
+  ""Authorization"": ""Bearer <E1_JWT>"",
+  ""Content-Type"": ""application/json""
+}","POST /api/v1/leaves
+Body: {
+  ""type"": ""ANNUAL"",
+  ""startDate"": ""<today+7>"",
+  ""endDate"": ""<today+9>"",
+  ""reason"": ""Family trip""
+}
+1. Send request
+2. Validate status and schema
+3. GET /api/v1/leaves/{leaveId}","Status 201
+Body contains leaveId; follow-up GET returns status PENDING with submitted values; Content-Type application/json",Positive,API-001
+GET /leaves/{id} returns own leave request,API > Leaves API > Positive,Functional,High,FR-5.2,"E1 owns leave L-100
+Headers: {
+  ""Authorization"": ""Bearer <E1_JWT>""
+}","GET /api/v1/leaves/{id}
+1. GET /api/v1/leaves/L-100
+2. Validate schema","Status 200
+Body has leaveId=L-100, type, startDate, endDate, reason, status matching DB",Positive,API-012
+PATCH status APPROVED by direct manager returns 200,API > Leaves API > Positive,Functional,High,"FR-5.3, FR-3.1","L-100 Pending, owned by E1; caller M1 (E1's manager)
+Headers: {
+  ""Authorization"": ""Bearer <M1_JWT>"",
+  ""Content-Type"": ""application/json""
+}","PATCH /api/v1/leaves/{id}/status
+Body: {
+  ""status"": ""APPROVED"",
+  ""comment"": """"
+}
+1. Send PATCH
+2. GET /api/v1/leaves/L-100","Status 200
+Status APPROVED persisted; E1 balance reduced; approval email sent",Positive,API-017
+PATCH status by HR Admin returns 200,API > Leaves API > Positive,Functional,High,"FR-5.3, FR-4.2","L-104 Pending (any employee); caller HR Admin
+Headers: {
+  ""Authorization"": ""Bearer <HR_JWT>"",
+  ""Content-Type"": ""application/json""
+}","PATCH /api/v1/leaves/{id}/status
+Body: {
+  ""status"": ""REJECTED"",
+  ""comment"": ""Blackout period for audit""
+}
+1. Send PATCH
+2. GET leave","Status 200
+Status REJECTED with comment; rejection email sent",Positive,API-025
+POST /leaves without JWT returns 401,API > Leaves API > Negative,Functional,High,FR-5.1,"None
+Headers: {
+  ""Content-Type"": ""application/json""
+}","POST /api/v1/leaves
+Body: {
+  ""type"": ""ANNUAL"",
+  ""startDate"": ""<today+7>"",
+  ""endDate"": ""<today+9>""
+}
+1. Send request without Authorization header","Status 401
+Error body; no leave created",Negative,API-002
+POST /leaves with past start date returns 400,API > Leaves API > Negative,Functional,High,"FR-5.1, FR-2.2","Valid employee JWT
+Headers: {
+  ""Authorization"": ""Bearer <E1_JWT>"",
+  ""Content-Type"": ""application/json""
+}","POST /api/v1/leaves
+Body: {
+  ""type"": ""ANNUAL"",
+  ""startDate"": ""<today-1>"",
+  ""endDate"": ""<today+1>""
+}
+1. Send request","Status 400
+Validation error on startDate (400 or 422 – TBC); no leave created",Negative,API-004
+POST /leaves Annual exceeding balance returns 400,API > Leaves API > Negative,Functional,High,"FR-5.1, FR-2.5","E1 Annual balance = 5
+Headers: {
+  ""Authorization"": ""Bearer <E1_JWT>"",
+  ""Content-Type"": ""application/json""
+}","POST /api/v1/leaves
+Body: {
+  ""type"": ""ANNUAL"",
+  ""startDate"": ""<today+1>"",
+  ""endDate"": ""<today+6>""
+}
+1. Send 6-day Annual request","Status 400
+Insufficient balance error (400/409/422 – TBC); no leave created",Negative,API-007
+GET /leaves/{id} of another employee is denied (IDOR),API > Leaves API > Negative,Functional,High,"FR-5.2, FR-4.4","E2 owns L-201; caller is E1 (Employee)
+Headers: {
+  ""Authorization"": ""Bearer <E1_JWT>""
+}","GET /api/v1/leaves/{id}
+1. GET /api/v1/leaves/L-201","Status 403
+403 (or 404 to hide existence – TBC); no leave data returned",Negative,API-015
+GET /leaves/{id} without JWT returns 401,API > Leaves API > Negative,Functional,High,FR-5.2,"None
+Headers: {}","GET /api/v1/leaves/{id}
+1. GET /api/v1/leaves/L-100 without token","Status 401
+Unauthorized; no data",Negative,API-016
+PATCH status by Employee role returns 403,API > Leaves API > Negative,Functional,High,"FR-5.3, FR-4.2","Caller is Employee E2; L-100 Pending
+Headers: {
+  ""Authorization"": ""Bearer <E2_JWT>"",
+  ""Content-Type"": ""application/json""
+}","PATCH /api/v1/leaves/{id}/status
+Body: {
+  ""status"": ""APPROVED"",
+  ""comment"": """"
+}
+1. Send PATCH","Status 403
+Forbidden; status unchanged",Negative,API-020
+PATCH status by manager of another team returns 403,API > Leaves API > Negative,Functional,High,"FR-5.3, FR-3.1","L-200 owned by E9 (reports to M2); caller M1
+Headers: {
+  ""Authorization"": ""Bearer <M1_JWT>"",
+  ""Content-Type"": ""application/json""
+}","PATCH /api/v1/leaves/{id}/status
+Body: {
+  ""status"": ""APPROVED"",
+  ""comment"": """"
+}
+1. Send PATCH","Status 403
+Forbidden; status unchanged",Negative,API-021
+POST /leaves with end before start returns 400,API > Leaves API > Negative,Functional,Medium,"FR-5.1, FR-2.2","Valid employee JWT
+Headers: {
+  ""Authorization"": ""Bearer <E1_JWT>"",
+  ""Content-Type"": ""application/json""
+}","POST /api/v1/leaves
+Body: {
+  ""type"": ""ANNUAL"",
+  ""startDate"": ""<today+5>"",
+  ""endDate"": ""<today+4>""
+}
+1. Send request","Status 400
+Validation error on endDate; no leave created",Negative,API-005
+POST /leaves with invalid leave type returns 400,API > Leaves API > Negative,Functional,Medium,"FR-5.1, FR-2.1","Valid employee JWT
+Headers: {
+  ""Authorization"": ""Bearer <E1_JWT>"",
+  ""Content-Type"": ""application/json""
+}","POST /api/v1/leaves
+Body: {
+  ""type"": ""MATERNITY"",
+  ""startDate"": ""<today+1>"",
+  ""endDate"": ""<today+2>""
+}
+1. Send request","Status 400
+Error lists allowed values ANNUAL, SICK, UNPAID; no leave created",Negative,API-009
+POST /leaves with malformed JSON or missing fields returns 400,API > Leaves API > Negative,Functional,Medium,FR-5.1,"Valid employee JWT
+Headers: {
+  ""Authorization"": ""Bearer <E1_JWT>"",
+  ""Content-Type"": ""application/json""
+}","POST /api/v1/leaves
+Body: { ""type"": ""ANNUAL"", ""startDate"": 
+1. Send truncated JSON
+2. Send {} (missing type/startDate/endDate)","Status 400
+Parse/validation error without stack trace; no leave created",Negative,API-010
+GET /leaves/{id} for non-existent id returns 404,API > Leaves API > Negative,Functional,Medium,FR-5.2,"Valid JWT
+Headers: {
+  ""Authorization"": ""Bearer <E1_JWT>""
+}","GET /api/v1/leaves/{id}
+1. GET /api/v1/leaves/999999999","Status 404
+Not-found error body",Negative,API-013
+PATCH with invalid status value returns 400,API > Leaves API > Negative,Functional,Medium,FR-5.3,"L-103 Pending; caller M1
+Headers: {
+  ""Authorization"": ""Bearer <M1_JWT>"",
+  ""Content-Type"": ""application/json""
+}","PATCH /api/v1/leaves/{id}/status
+Body: {
+  ""status"": ""CANCELLED"",
+  ""comment"": ""Not a valid status""
+}
+1. Send PATCH
+2. Repeat with status 'approved' (lowercase)","Status 400
+Error: allowed values APPROVED|REJECTED (case handling TBC); status unchanged",Negative,API-022
+PATCH on non-existent leave returns 404,API > Leaves API > Negative,Functional,Low,FR-5.3,"Caller HR Admin
+Headers: {
+  ""Authorization"": ""Bearer <HR_JWT>"",
+  ""Content-Type"": ""application/json""
+}","PATCH /api/v1/leaves/{id}/status
+Body: {
+  ""status"": ""APPROVED"",
+  ""comment"": """"
+}
+1. PATCH /api/v1/leaves/999999999/status","Status 404
+Not found",Negative,API-024
+Unsupported method on /leaves/{id} returns 405,API > Leaves API > Negative,Functional,Low,FR-5.2,"Valid JWT
+Headers: {
+  ""Authorization"": ""Bearer <E1_JWT>""
+}","DELETE /api/v1/leaves/{id}
+1. DELETE /api/v1/leaves/L-100","Status 405
+Method not allowed; leave still exists",Negative,API-026
+POST /leaves with expired or tampered JWT returns 401,API > Leaves API > Corner,Functional,High,FR-5.1,"Expired JWT; JWT with modified payload/signature
+Headers: {
+  ""Authorization"": ""Bearer <EXPIRED_OR_TAMPERED_JWT>"",
+  ""Content-Type"": ""application/json""
+}","POST /api/v1/leaves
+Body: {
+  ""type"": ""SICK"",
+  ""startDate"": ""<today>"",
+  ""endDate"": ""<today>""
+}
+1. Send with expired token
+2. Send with tampered token","Status 401
+Both rejected; no leave created",Corner,API-003
+POST /leaves ignores client-supplied employeeId and status,API > Leaves API > Corner,Functional,High,FR-5.1,"Valid JWT for E1
+Headers: {
+  ""Authorization"": ""Bearer <E1_JWT>"",
+  ""Content-Type"": ""application/json""
+}","POST /api/v1/leaves
+Body: {
+  ""type"": ""ANNUAL"",
+  ""startDate"": ""<today+3>"",
+  ""endDate"": ""<today+3>"",
+  ""employeeId"": ""E2"",
+  ""status"": ""APPROVED""
+}
+1. Send request
+2. GET created leave","Status 201
+Leave owned by E1 (from JWT) with status PENDING; or 400 for unknown fields – never created for E2 or as APPROVED",Corner,API-011
+PATCH on already processed request returns 409,API > Leaves API > Corner,Functional,Medium,"FR-5.3, FR-3.1","L-100 already APPROVED; caller M1
+Headers: {
+  ""Authorization"": ""Bearer <M1_JWT>"",
+  ""Content-Type"": ""application/json""
+}","PATCH /api/v1/leaves/{id}/status
+Body: {
+  ""status"": ""REJECTED"",
+  ""comment"": ""Changed my mind now""
+}
+1. Send PATCH","Status 409
+Conflict (409 or 400 – TBC); status stays APPROVED; no extra email",Corner,API-023
+GET /leaves/{id} with malformed id,API > Leaves API > Corner,Functional,Low,FR-5.2,"Valid JWT
+Headers: {
+  ""Authorization"": ""Bearer <E1_JWT>""
+}","GET /api/v1/leaves/{id}
+1. GET /api/v1/leaves/abc%27%20OR%201=1","Status 404
+404 or 400 (TBC); no SQL error or data leak",Corner,API-014
+POST /leaves with 30 days succeeds and 31 days fails,API > Leaves API > Boundary,Functional,High,"FR-5.1, FR-2.3","Valid employee JWT
+Headers: {
+  ""Authorization"": ""Bearer <E1_JWT>"",
+  ""Content-Type"": ""application/json""
+}","POST /api/v1/leaves
+Body: {
+  ""type"": ""UNPAID"",
+  ""startDate"": ""<today+1>"",
+  ""endDate"": ""<today+30> then <today+31>""
+}
+1. Send with 30-day range
+2. Send with 31-day range","Status 201
+30 days → 201 with leaveId; 31 days → 400 with duration error",Boundary,API-006
+PATCH status REJECTED with 10-char comment returns 200,API > Leaves API > Boundary,Functional,High,"FR-5.3, FR-3.2","L-101 Pending; caller M1
+Headers: {
+  ""Authorization"": ""Bearer <M1_JWT>"",
+  ""Content-Type"": ""application/json""
+}","PATCH /api/v1/leaves/{id}/status
+Body: {
+  ""status"": ""REJECTED"",
+  ""comment"": ""Too busy!!""
+}
+1. Send PATCH
+2. GET leave","Status 200
+Status REJECTED; comment stored; rejection email sent",Boundary,API-018
+PATCH REJECTED with 9-char or missing comment returns 400,API > Leaves API > Boundary,Functional,High,"FR-5.3, FR-3.2","L-102 Pending; caller M1
+Headers: {
+  ""Authorization"": ""Bearer <M1_JWT>"",
+  ""Content-Type"": ""application/json""
+}","PATCH /api/v1/leaves/{id}/status
+Body: {
+  ""status"": ""REJECTED"",
+  ""comment"": ""Too busy.""
+}
+1. Send with 9-char comment
+2. Send with comment omitted","Status 400
+Validation error on comment; status remains PENDING; no email",Boundary,API-019
+POST /leaves reason 250 chars accepted and 251 rejected,API > Leaves API > Boundary,Functional,Medium,"FR-5.1, FR-2.4","Valid employee JWT
+Headers: {
+  ""Authorization"": ""Bearer <E1_JWT>"",
+  ""Content-Type"": ""application/json""
+}","POST /api/v1/leaves
+Body: {
+  ""type"": ""SICK"",
+  ""startDate"": ""<today>"",
+  ""endDate"": ""<today>"",
+  ""reason"": ""'a' x 250 then 'a' x 251""
+}
+1. Send with 250-char reason
+2. Send with 251-char reason","Status 201
+250 → 201 and reason stored intact; 251 → 400 validation error",Boundary,API-008

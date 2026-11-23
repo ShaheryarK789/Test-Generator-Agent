@@ -1,0 +1,67 @@
+﻿Title,Section,Type,Priority,References,Preconditions,Steps,Expected Result,Category,Source ID
+Create leave with valid JWT returns 201,API > Leaves API > Positive,Functional,High,FR-5.1,"Headers: {
+  ""Authorization"": ""Bearer <employee JWT>"",
+  ""Content-Type"": ""application/json""
+}","POST /api/v1/leaves
+Body: {
+  ""type"": ""ANNUAL"",
+  ""startDate"": ""<tomorrow>"",
+  ""endDate"": ""<tomorrow+2>"",
+  ""reason"": ""Trip""
+}
+1. Send request
+2. GET the returned leaveId","Status 201
+Body contains leaveId; GET returns same data with status PENDING",Positive,API-001
+Get existing leave returns 200,API > Leaves API > Positive,Functional,High,FR-5.2,,GET /api/v1/leaves/{id},"Status 200
+Schema: leaveId, type, startDate, endDate, status, reason",Positive,API-007
+Manager approves via PATCH returns 200,API > Leaves API > Positive,Functional,High,FR-5.3,"Headers: {
+  ""Authorization"": ""Bearer <manager JWT>""
+}","PATCH /api/v1/leaves/{id}/status
+Body: {
+  ""status"": ""APPROVED""
+}","Status 200
+status=APPROVED",Positive,API-010
+Create leave without JWT returns 401,API > Leaves API > Negative,Functional,High,FR-5.1,,"POST /api/v1/leaves
+Body: {
+  ""type"": ""ANNUAL""
+}","Status 401
+Error body; no record created",Negative,API-002
+Employee PATCH status returns 403,API > Leaves API > Negative,Functional,High,"FR-5.3, FR-4","Headers: {
+  ""Authorization"": ""Bearer <employee JWT>""
+}","PATCH /api/v1/leaves/{id}/status
+Body: {
+  ""status"": ""APPROVED""
+}","Status 403
+Forbidden; status unchanged",Negative,API-011
+Missing required field returns 400,API > Leaves API > Negative,Functional,Medium,"FR-5.1, FR-2.2",,"POST /api/v1/leaves
+Body: {
+  ""type"": ""SICK"",
+  ""endDate"": ""<tomorrow>""
+}","Status 400
+Validation error naming startDate",Negative,API-004
+Invalid leave type enum returns 400,API > Leaves API > Negative,Functional,Medium,"FR-5.1, FR-2.1",,"POST /api/v1/leaves
+Body: {
+  ""type"": ""VACATION""
+}","Status 400
+Allowed values listed",Negative,API-005
+Get unknown leave returns 404,API > Leaves API > Negative,Functional,Medium,FR-5.2,,GET /api/v1/leaves/{id},"Status 404
+Not found error body",Negative,API-008
+Create leave with expired JWT returns 401,API > Leaves API > Corner,Functional,High,FR-5.1,"Headers: {
+  ""Authorization"": ""Bearer <expired JWT>""
+}",POST /api/v1/leaves,"Status 401
+Token expired error",Corner,API-003
+Employee cannot read another employee's leave (IDOR),API > Leaves API > Corner,Functional,High,"FR-5.2, FR-4",JWT of Employee A; leave id belongs to Employee B,GET /api/v1/leaves/{id},"Status 403
+Forbidden (or 404); no data leaked",Corner,API-009
+31-day request rejected by API,API > Leaves API > Boundary,Functional,High,"FR-2.3, FR-5.1",,"POST /api/v1/leaves
+Body: {
+  ""type"": ""UNPAID"",
+  ""startDate"": ""<D>"",
+  ""endDate"": ""<D+30>""
+}","Status 400
+Max 30 days error (server-side validation, not only UI)",Boundary,API-006
+REJECTED with 9-char comment returns 400,API > Leaves API > Boundary,Functional,Medium,"FR-5.3, FR-3.2",,"PATCH /api/v1/leaves/{id}/status
+Body: {
+  ""status"": ""REJECTED"",
+  ""comment"": ""123456789""
+}","Status 400
+Comment min length error",Boundary,API-012

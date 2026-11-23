@@ -1,0 +1,4 @@
+Newsletter signup
+- REQ-1: Visitor enters email and clicks Subscribe; email must be valid format, max 100 chars.
+- REQ-2: Duplicate emails show "Already subscribed".
+- REQ-3: API: POST /api/subscribe {email} returns 201, 400 on invalid email, 409 on duplicate.

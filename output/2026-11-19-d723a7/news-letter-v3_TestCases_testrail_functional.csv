@@ -1,0 +1,54 @@
+﻿Title,Section,Type,Priority,References,Preconditions,Steps,Expected Result,Test Data,Category,Source ID
+Subscribe with a new valid email,Newsletter Signup > Positive,Functional,High,REQ-1,Signup form is visible; email not yet subscribed,"1. Open the page with the newsletter signup form
+2. Enter qa.user01@example.com
+3. Click Subscribe",Success confirmation is shown (assumed text: 'Thank you for subscribing'); email stored as a subscriber; form cleared/disabled to prevent resubmission,Email = qa.user01@example.com,Positive,TC-001
+Show 'Already subscribed' for duplicate email,Duplicate Handling > Positive,Functional,High,REQ-2,qa.dup@example.com is already subscribed,"1. Enter qa.dup@example.com
+2. Click Subscribe","Message exactly ""Already subscribed"" shown; no second subscriber record created",Email = qa.dup@example.com,Positive,TC-020
+Subscribe with plus-addressed and subdomain email,Newsletter Signup > Positive,Functional,Medium,REQ-1,Signup form is visible,"1. Enter the email
+2. Click Subscribe",Email accepted as valid; success confirmation shown; subscriber record created with the exact address,Email = first.last+news@mail.sub.example.co.uk,Positive,TC-002
+Submit via Enter key,Newsletter Signup > Positive,Usability,Low,REQ-1,Signup form is visible,"1. Enter the email
+2. Press Enter in the email field",Form submits same as clicking Subscribe; success confirmation shown,Email = qa.enter@example.com,Positive,TC-019
+Reject Subscribe with empty email,Newsletter Signup > Negative,Functional,High,REQ-1,Signup form is visible,"1. Leave email field empty
+2. Click Subscribe",Validation error shown on email field (e.g. 'Please enter a valid email'); no subscriber created; no API call returns 201,Email = (empty),Negative,TC-003
+Reject email missing @ symbol,Newsletter Signup > Negative,Functional,High,REQ-1,Signup form is visible,"1. Enter the email
+2. Click Subscribe",Invalid email format error shown; no subscriber created,Email = qauser.example.com,Negative,TC-004
+Reject script injection in email field,Newsletter Signup > Negative,Security,High,REQ-1,Signup form is visible,"1. Enter the payload
+2. Click Subscribe",Rejected as invalid format; no script executes; payload is not reflected unescaped in page; nothing stored,Email = <script>alert(1)</script>@example.com,Negative,TC-008
+Reject SQL injection string in email field,Newsletter Signup > Negative,Security,High,REQ-1,Signup form is visible,"1. Enter the payload
+2. Click Subscribe",Rejected as invalid format (or safely handled); no DB error exposed; subscriber table unchanged,Email = ' OR 1=1--@example.com,Negative,TC-009
+Reject email missing domain,Newsletter Signup > Negative,Functional,Medium,REQ-1,Signup form is visible,"1. Enter the email
+2. Click Subscribe",Invalid email format error shown; no subscriber created,Email = qauser@,Negative,TC-005
+Reject email missing local part,Newsletter Signup > Negative,Functional,Medium,REQ-1,Signup form is visible,"1. Enter the email
+2. Click Subscribe",Invalid email format error shown; no subscriber created,Email = @example.com,Negative,TC-006
+Reject email with multiple @ or internal spaces,Newsletter Signup > Negative,Functional,Medium,REQ-1,Signup form is visible,"1. Enter Email A, click Subscribe
+2. Enter Email B, click Subscribe",Both rejected with invalid email format error; no subscriber created,Email A = qa@@example.com; Email B = qa user@example.com,Negative,TC-007
+Invalid format takes precedence over duplicate check,Duplicate Handling > Negative,Functional,Medium,"REQ-1, REQ-2",Signup form is visible,"1. Enter the email
+2. Click Subscribe","Invalid format error shown, not ""Already subscribed""; nothing stored",Email = qa.dup@example (no TLD),Negative,TC-024
+'Already subscribed' message does not appear for new email,Duplicate Handling > Negative,Functional,Medium,REQ-2,qa.fresh@example.com not subscribed,"1. Enter the email
+2. Click Subscribe","Success confirmation shown; ""Already subscribed"" not displayed",Email = qa.fresh@example.com,Negative,TC-025
+Double-click Subscribe creates only one subscription,Newsletter Signup > Corner,Functional,High,"REQ-1, REQ-2",Signup form is visible; email not subscribed,"1. Enter the email
+2. Rapidly double-click Subscribe",Exactly one subscriber record created; user sees the success message (not 'Already subscribed' from the second request); button disabled while request is in flight,Email = qa.double@example.com,Corner,TC-017
+Leading and trailing spaces are trimmed,Newsletter Signup > Corner,Functional,Medium,REQ-1,Signup form is visible,"1. Enter the email with surrounding spaces
+2. Click Subscribe","Assumed: spaces trimmed and qa.trim@example.com stored; success shown (if not trimmed, a format error is shown, never a stored value with spaces)",Email = '  qa.trim@example.com  ',Corner,TC-014
+Network failure during Subscribe shows retryable error,Newsletter Signup > Corner,Functional,Medium,REQ-1,Signup form is visible; browser DevTools set to Offline,"1. Enter the email
+2. Go offline
+3. Click Subscribe
+4. Go online and click Subscribe again",Generic error shown on failure without losing entered email; retry succeeds with one subscriber record,Email = qa.offline@example.com,Corner,TC-018
+Duplicate detection is case-insensitive,Duplicate Handling > Corner,Functional,Medium,REQ-2,qa.dup@example.com is already subscribed,"1. Enter the mixed-case email
+2. Click Subscribe","Assumed: ""Already subscribed"" shown; no new record (pending confirmation of case rule)",Email = QA.Dup@Example.COM,Corner,TC-021
+Duplicate with surrounding spaces still detected,Duplicate Handling > Corner,Functional,Medium,REQ-2,qa.dup@example.com is already subscribed,"1. Enter the email with spaces
+2. Click Subscribe","""Already subscribed"" shown; no new record with spaces created",Email = ' qa.dup@example.com ',Corner,TC-022
+100 chars plus surrounding spaces counted after trim,Newsletter Signup > Corner,Functional,Low,REQ-1,Signup form is visible,"1. Enter the padded email
+2. Click Subscribe",Consistent with trim rule: accepted if length is measured after trim; behaviour matches the API length check,' ' + 100-char email + ' ' (102 raw chars),Corner,TC-015
+Internationalised (unicode) email handling,Newsletter Signup > Corner,Functional,Low,REQ-1,Signup form is visible,"1. Enter the email
+2. Click Subscribe","Handled consistently per decision on IDN/unicode support (open question): either accepted and stored without mojibake, or rejected with the invalid format error; no server error",Email = jose.muñoz@exämple.com,Corner,TC-016
+Different plus-alias is not treated as duplicate,Duplicate Handling > Corner,Functional,Low,REQ-2,qa.dup@example.com is already subscribed,"1. Enter the email
+2. Click Subscribe",Assumed: treated as a distinct address; success shown; new record created,Email = qa.dup+2@example.com,Corner,TC-023
+Accept email of exactly 100 characters,Newsletter Signup > Boundary,Functional,High,REQ-1,Signup form is visible,"1. Enter the 100-char email
+2. Click Subscribe",Accepted; success confirmation shown; stored value is the full 100 chars (not truncated),Email length = 100: 88 x 'a' + '@example.com' (12 chars),Boundary,TC-010
+Reject email of 101 characters,Newsletter Signup > Boundary,Functional,High,REQ-1,Signup form is visible,"1. Paste the 101-char email (bypasses maxlength if any)
+2. Click Subscribe","Either input is limited to 100 chars by the field, or a 'max 100 characters' error is shown; no 101-char email stored",Email length = 101: 89 x 'a' + '@example.com',Boundary,TC-012
+Accept email of 99 characters,Newsletter Signup > Boundary,Functional,Medium,REQ-1,Signup form is visible,"1. Enter the 99-char email
+2. Click Subscribe",Accepted; success confirmation shown; full value stored,Email length = 99: 87 x 'a' + '@example.com',Boundary,TC-011
+Accept shortest valid email,Newsletter Signup > Boundary,Functional,Low,REQ-1,Signup form is visible,"1. Enter the email
+2. Click Subscribe",Accepted as valid format; success confirmation shown,Email = a@b.co (6 chars),Boundary,TC-013

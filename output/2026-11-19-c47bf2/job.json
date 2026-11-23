@@ -1,0 +1,33 @@
+{
+  "id": "2026-11-19-c47bf2",
+  "project": "Leave management System V2",
+  "slug": "leave-management-system-v2",
+  "status": "done",
+  "createdAt": "2026-11-19T08:14:56.366Z",
+  "sources": [
+    "sample-requirements.md"
+  ],
+  "inputs": [
+    {
+      "name": "sample-requirements.md",
+      "size": 1411,
+      "kind": "file"
+    }
+  ],
+  "run": {
+    "project": "Leave management System V2",
+    "slug": "leave-management-system-v2",
+    "outDirRel": "output/2026-11-19-c47bf2",
+    "sources": [
+      "uploads/2026-11-19-c47bf2/sample-requirements.md"
+    ],
+    "urls": []
+  },
+  "model": "claude-opus-5-5",
+  "toolCalls": 8,
+  "costUsd": 0.9885708,
+  "durationMs": 233683,
+  "numTurns": 10,
+  "finishedAt": "2026-11-19T08:18:52.769Z",
+  "summary": "The workbook is built, and every one of the 18 requirements has at least one test case (no uncovered ones reported).\n\n- **Files:** in `output/2026-11-19-c47bf2/`: `leave-management-system-v2_TestCases.xlsx`, the source JSON, and three TestRail CSVs (`_testrail_functional.csv`, `_testrail_api.csv`, `_testrail_roles.csv`).\n- **Counts:** 124 cases: 81 functional, 26 API (FR-5 lists three endpoints) and 17 role-based, plus a permission matrix for Employee, Manager and HR Admin. By type: 26 positive, 39 negative, 27 corner, 32 boundary. By priority: 64 High, 41 Medium, 19 Low. That's 52% High, above the 25–40% guideline, because of the many security and permission-denial cases. You may want to move some to Medium.\n- **Top open questions:** are leave days counted as calendar or working days? Is Annual balance taken on submission or on approval, and do pending requests count against it? Which timezone decides that a start date is \"in the past\"? Do failed logins during a lock extend it? What can HR Admin approve, and who approves leave for managers and HR Admins? The workbook also lists 11 assumptions and 13 open questions in total.\n- **TestRail import:** go to Test Cases → Import → CSV, choose the \"Test Case (Text)\" template, and map the columns. The Section column (`Module > Category`) can be mapped to a section hierarchy."
+}
